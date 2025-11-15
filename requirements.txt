@@ -1,0 +1,12 @@
+FastAPI
+uvicorn
+sqlalchemy
+pydantic
+Pillow
+opencv-python
+imagehash
+numpy
+requests
+python-multipart
+pytest
+pytest-asyncio
