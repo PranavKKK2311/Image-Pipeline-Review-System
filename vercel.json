@@ -3,6 +3,10 @@
         {
             "source": "/api/:path*",
             "destination": "https://image-pipeline-review-system.onrender.com/api/:path*"
+        },
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
         }
     ]
 }
