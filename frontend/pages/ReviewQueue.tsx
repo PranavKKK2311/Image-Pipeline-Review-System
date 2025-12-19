@@ -4,6 +4,9 @@
 
 import React, { useState, useEffect } from 'react';
 
+// Get API base URL from environment variable
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 interface ValidationChecks {
   background_white: number;
   blur: number;
@@ -57,7 +60,7 @@ const ReviewQueue: React.FC = () => {
 
   const fetchPendingTasks = async () => {
     try {
-      const response = await fetch('/api/v1/review/pending?limit=50', {
+      const response = await fetch(`${API_BASE}/api/v1/review/pending?limit=50`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (response.ok) {
@@ -71,7 +74,7 @@ const ReviewQueue: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/v1/review/stats', {
+      const response = await fetch(`${API_BASE}/api/v1/review/stats`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (response.ok) {
@@ -88,7 +91,7 @@ const ReviewQueue: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await fetch('/api/v1/review/submit-decision', {
+      const response = await fetch(`${API_BASE}/api/v1/review/submit-decision`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,7 +140,7 @@ const ReviewQueue: React.FC = () => {
   const getImageUrl = (url: string): string => {
     if (!url) return '';
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
-    if (url.startsWith('/uploads/')) return `http://localhost:8000${url}`;
+    if (url.startsWith('/uploads/')) return `${API_BASE}${url}`;
     return url;
   };
 

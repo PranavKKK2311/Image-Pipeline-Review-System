@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 
+// Get API base URL from environment variable
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 interface Submission {
     id: number;
     product_name: string;
@@ -32,7 +35,7 @@ const VendorDashboard: React.FC = () => {
 
     const fetchSubmissions = async () => {
         try {
-            const response = await fetch('/api/v1/images/my-submissions', {
+            const response = await fetch(`${API_BASE}/api/v1/images/my-submissions`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
             if (response.ok) {
@@ -71,7 +74,7 @@ const VendorDashboard: React.FC = () => {
             formData.append('product_name', productName);
             formData.append('vendor_code', vendorCode);
 
-            const response = await fetch('/api/v1/images/upload', {
+            const response = await fetch(`${API_BASE}/api/v1/images/upload`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData,
@@ -332,7 +335,7 @@ const VendorDashboard: React.FC = () => {
                                         }}>
                                             <div style={{ display: 'flex', gap: '14px' }}>
                                                 <img
-                                                    src={`http://localhost:8000${sub.image_url}`}
+                                                    src={`${API_BASE}${sub.image_url}`}
                                                     alt={sub.product_name}
                                                     style={{ width: '64px', height: '64px', borderRadius: '8px', objectFit: 'cover' }}
                                                     onError={(e) => { e.currentTarget.style.display = 'none'; }}

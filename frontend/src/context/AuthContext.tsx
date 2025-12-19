@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+// Get API base URL from environment variable (empty for development, full URL for production)
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 interface User {
     name: string;
     email: string;
@@ -13,6 +16,7 @@ interface AuthContextType {
     register: (name: string, email: string, password: string, role: 'vendor' | 'official') => Promise<boolean>;
     logout: () => void;
     isLoading: boolean;
+    apiUrl: string;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -48,7 +52,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const login = async (email: string, password: string): Promise<boolean> => {
         try {
-            const response = await fetch('/api/v1/auth/login', {
+            const response = await fetch(`${API_BASE}/api/v1/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -77,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         role: 'vendor' | 'official'
     ): Promise<boolean> => {
         try {
-            const response = await fetch('/api/v1/auth/register', {
+            const response = await fetch(`${API_BASE}/api/v1/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password, role }),
@@ -107,7 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, register, logout, isLoading }}>
+        <AuthContext.Provider value={{ user, token, login, register, logout, isLoading, apiUrl: API_BASE }}>
             {children}
         </AuthContext.Provider>
     );
