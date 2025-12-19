@@ -1,257 +1,298 @@
-# SKU Generation & Image Validation Pipeline
+# SKU Image Pipeline
 
-Complete solution for unique product code generation (SKU) and human-in-the-loop image validation.
+A full-stack application for **SKU (Stock Keeping Unit) generation** and **product image validation** with a human-in-the-loop review workflow. Built with **FastAPI** (Python) backend and **React + TypeScript** frontend.
 
-## Problem Statement
+![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)
 
-**Problem 1:** Two different users submit similar product codes (e.g., `BRIT10G` vs `BRITC10G`) for the same product, causing collisions and ambiguity.
+---
 
-**Problem 2:** After code acceptance, automated image generation produces product images with white background, but sometimes images are incorrect (wrong product, bad background, artifacts). Requires human review for low-confidence results.
+## Features
 
-## Solution Overview
+### Core Services
+- **SKU Generator** - Creates unique, deterministic product codes with collision resolution
+- **Image Validator** - Automated quality checks (background, blur, coverage, similarity)
+- **Review Queue** - Human-in-the-loop workflow for borderline cases
 
-### Problem 1: Unique SKU Generation
+### User Roles
+| Role | Capabilities |
+|------|-------------|
+| **Vendor** | Upload product images, track submission status, receive feedback |
+| **Official** | Review pending submissions, approve/reject with feedback |
 
-- **Vendor namespace prefix**: All SKUs prefixed with vendor short code (`VEND-BRIT10G`)
-- **Deterministic hashing**: On collision, append stable hash suffix (`VEND-BRIT10G-3F4E1A`)
-- **Database enforcement**: Unique index on `canonical_sku` ensures no duplicates
-- **Transaction-safe upsert**: Insert attempts use DB-level conflict detection
+### Tech Highlights
+- JWT-based authentication
+- Real-time queue statistics
+- Glassmorphism UI with dark matcha theme
+- File upload with preview
+- Role-based access control
 
-**Key files:**
-- `backend/services/sku_generator.py` - Core canonicalization and SKU generation
-- `backend/migrations/001_initial_schema.sql` - Database schema with uniqueness constraints
-- `tests/test_sku_generator.py` - Test cases and edge cases
-
-### Problem 2: Image Validation & Human-in-the-Loop
-
-- **Automated validation**: White background, object detection, blur, coverage checks
-- **Confidence scoring**: Weighted combination of multiple checks
-- **Human review queue**: Tasks created for low-confidence images
-- **Reviewer feedback**: Captured for model improvement and retraining
-- **Review UI**: React frontend for human reviewers
-
-**Key files:**
-- `backend/services/image_validator.py` - Automated validation checks
-- `backend/services/review_queue.py` - Task management for human review
-- `frontend/pages/ReviewQueue.tsx` - React UI for reviewers
-- `tests/test_image_validator.py` - Validation test suite
+---
 
 ## Architecture
 
+```mermaid
+flowchart TB
+    subgraph Frontend["Frontend (React + Vite)"]
+        LP[Login Page]
+        RP[Register Page]
+        VD[Vendor Dashboard]
+        RQ[Review Queue]
+        AC[Auth Context]
+    end
+
+    subgraph Backend["Backend (FastAPI)"]
+        API[API Layer]
+        AUTH[Auth Service]
+        
+        subgraph Services["Core Services"]
+            SKU[SKU Generator]
+            IV[Image Validator]
+            RQS[Review Queue Service]
+        end
+        
+        subgraph Storage["Storage"]
+            MEM[(In-Memory Store)]
+            UPL[(Uploads Folder)]
+        end
+    end
+
+    LP --> AC
+    RP --> AC
+    AC --> API
+    VD --> API
+    RQ --> API
+    
+    API --> AUTH
+    API --> SKU
+    API --> IV
+    API --> RQS
+    
+    SKU --> MEM
+    RQS --> MEM
+    IV --> UPL
+    
+    style Frontend fill:#ecfdf5,stroke:#059669
+    style Backend fill:#fef3c7,stroke:#d97706
+    style Services fill:#dbeafe,stroke:#3b82f6
 ```
-Product Ingestion
-    ↓
-[1] SKU Generation (deterministic canonicalization)
-    ↓
-[2] Image Generation (automated)
-    ↓
-[3] Image Validation (automated checks)
-    ├─ HIGH confidence → Auto-accept
-    ├─ LOW confidence → Human Review Queue
-    └─ FAILED → Retry/Escalate
-    ↓
-[4] Human Review (optional)
-    ├─ Accept
-    ├─ Reject & Regenerate
-    └─ Edit/Upload New
-    ↓
-[5] Feedback Capture (for model improvement)
+
+### Request Flow
+
+```mermaid
+sequenceDiagram
+    participant V as Vendor
+    participant FE as Frontend
+    participant API as Backend API
+    participant IV as Image Validator
+    participant RQ as Review Queue
+    participant O as Official
+
+    V->>FE: Upload Image
+    FE->>API: POST /images/upload
+    API->>IV: Validate Image
+    IV-->>API: Score & Metrics
+    
+    alt Score >= 85%
+        API-->>FE: Auto-Accepted
+    else Score 70-85%
+        API->>RQ: Create Review Task
+        RQ-->>API: Task Created
+        API-->>FE: Pending Review
+        O->>FE: View Pending Tasks
+        FE->>API: GET /review/pending
+        O->>FE: Submit Decision
+        FE->>API: POST /review/submit-decision
+        API-->>FE: Feedback to Vendor
+    else Score < 70%
+        API-->>FE: Auto-Rejected
+    end
 ```
+
+---
+
+## Project Structure
+
+```
+sku-image-pipeline/
+├── backend/
+│   ├── __init__.py
+│   ├── config.py              # Configuration settings
+│   ├── main.py                # Original FastAPI app
+│   ├── migrations/            # Database migrations
+│   └── services/
+│       ├── sku_generator.py   # SKU generation logic
+│       ├── image_validator.py # Image quality validation
+│       └── review_queue.py    # Review workflow service
+│
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx            # Root component with routing
+│   │   ├── main.tsx           # React entry point
+│   │   ├── index.css          # Global styles (matcha theme)
+│   │   ├── context/
+│   │   │   └── AuthContext.tsx    # Authentication state
+│   │   └── pages/
+│   │       ├── Login.tsx          # Login page
+│   │       ├── Register.tsx       # Registration with role select
+│   │       └── VendorDashboard.tsx # Vendor upload & history
+│   ├── pages/
+│   │   └── ReviewQueue.tsx    # Official review interface
+│   ├── index.html             # HTML entry
+│   ├── vite.config.ts         # Vite configuration
+│   ├── package.json           # NPM dependencies
+│   └── tsconfig.json          # TypeScript config
+│
+├── tests/
+│   ├── test_sku_generator.py  # SKU generator tests
+│   ├── test_image_validator.py
+│   └── test_review_queue.py
+│
+├── uploads/                   # Uploaded images (gitignored)
+├── run_server.py              # Main server entry point
+├── requirements.txt           # Python dependencies
+├── .env.example               # Environment template
+├── .gitignore
+└── README.md
+```
+
+---
 
 ## Quick Start
 
 ### Prerequisites
-```
-Python 3.8+
-PostgreSQL 12+
-Node.js 16+
-```
+- Python 3.9+
+- Node.js 18+
+- npm or yarn
 
-### Setup
+### Installation
 
-1. **Database**
-   ```bash
-   psql -U postgres -f backend/migrations/001_initial_schema.sql
-   ```
-
-2. **Backend**
-   ```bash
-   pip install -r requirements.txt
-   python -m pytest tests/
-   python backend/main.py
-   ```
-
-3. **Frontend**
-   ```bash
-   npm install
-   npm start
-   ```
-
-4. **Test SKU Generation**
-   ```bash
-   python tests/test_sku_generator.py
-   ```
-
-5. **Test Image Validation**
-   ```bash
-   python tests/test_image_validator.py
-   ```
-
-## Usage Examples
-
-### Generate Unique SKU
-
-```python
-from backend.services.sku_generator import SKUGenerator
-
-gen = SKUGenerator(db_connection)
-canonical_sku, status = gen.generate_sku(
-    raw_code="BRIT10G",
-    vendor_id=42,
-    vendor_short="VEND"
-)
-# Returns: ("VEND-BRIT10G", "inserted") or ("VEND-BRIT10G-3F4E1A", "conflict_resolved")
+**1. Clone the repository**
+```bash
+git clone <repository-url>
+cd sku-image-pipeline
 ```
 
-### Validate Image
+**2. Backend Setup**
+```bash
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-```python
-from backend.services.image_validator import ImageValidator
+# Install dependencies
+pip install -r requirements.txt
 
-validator = ImageValidator(
-    background_white_threshold=0.95,
-    blur_threshold=100.0,
-    object_coverage_min=0.30,
-    object_coverage_max=0.90
-)
-
-score, checks = validator.validate_image("product_image.jpg")
-# Returns: (0.87, {"background_white": True, "blur": False, "coverage": 0.55, ...})
-
-if score >= 0.85:  # Auto-accept threshold
-    print("Auto-accepted")
-else:
-    print("Send to human review")
+# Run tests
+pytest tests/ -v
 ```
 
-### Submit for Human Review
-
-```python
-from backend.services.review_queue import ReviewQueue
-
-queue = ReviewQueue(db_connection)
-task_id = queue.create_review_task(
-    product_id=123,
-    image_url="https://cdn.example.com/temp_image.jpg",
-    validation_score=0.65,
-    validation_checks=checks,
-    reason="Low object coverage"
-)
-# Task now visible in ReviewQueue UI
+**3. Frontend Setup**
+```bash
+cd frontend
+npm install
 ```
 
-## Configuration
+**4. Start the Application**
 
-Edit `backend/config.py`:
-
-```python
-# Thresholds
-SKU_ACCEPT_THRESHOLD = 0.95
-IMAGE_ACCEPT_THRESHOLD = 0.85
-IMAGE_ACCEPT_ON_MANUAL_RETRY = 0.70
-
-# Retry policy
-MAX_AUTO_REGENERATE_ATTEMPTS = 2
-HUMAN_REVIEW_TIMEOUT_HOURS = 48
-
-# Quality metrics
-BACKGROUND_WHITE_TOLERANCE = 10  # RGB distance
-OBJECT_COVERAGE_MIN = 0.30       # 30% of image
-OBJECT_COVERAGE_MAX = 0.90       # 90% of image
-BLUR_THRESHOLD = 100.0           # Laplacian variance
+Terminal 1 - Backend:
+```bash
+python run_server.py
 ```
 
-## Database Schema
-
-See `backend/migrations/001_initial_schema.sql` for:
-
-- `products` - Core product table with canonical SKU
-- `product_images` - Image records with validation scores
-- `review_tasks` - Human review queue
-- `review_feedback` - Reviewer decisions and feedback (for model training)
-- `validation_logs` - Full audit trail of validation checks
-
-## Monitoring & Metrics
-
-- Image auto-accept rate (should be > 90%)
-- Human review average time-to-decision (SLA: < 2 hours)
-- False positive/negative rate (tracked after human review)
-- Reviewer agreement rate (if multiple reviewers)
-
-## Integration Steps
-
-1. **Add SKU generation to ingestion pipeline** → compute canonical_sku at insert time
-2. **Add image validation to generation service** → run checks after image generated
-3. **Implement review queue consumer** → poll for new human tasks
-4. **Deploy reviewer UI** → expose review task queue and decision UI
-5. **Capture feedback** → store reviewer decisions for analytics and model retraining
-
-## File Structure
-
-```
-sku-image-pipeline/
-├── README.md
-├── requirements.txt
-├── backend/
-│   ├── main.py                          # FastAPI server
-│   ├── config.py                        # Configuration
-│   ├── database.py                      # DB connection pooling
-│   ├── migrations/
-│   │   └── 001_initial_schema.sql       # Database schema
-│   ├── services/
-│   │   ├── sku_generator.py             # SKU canonicalization (Problem 1)
-│   │   ├── image_validator.py           # Image validation (Problem 2)
-│   │   └── review_queue.py              # HITL task management
-│   └── api/
-│       ├── products.py                  # Product endpoints
-│       ├── images.py                    # Image endpoints
-│       └── review.py                    # Review queue endpoints
-├── frontend/
-│   ├── package.json
-│   ├── pages/
-│   │   └── ReviewQueue.tsx              # Reviewer UI
-│   └── components/
-│       ├── ImageViewer.tsx
-│       └── ReviewActions.tsx
-└── tests/
-    ├── test_sku_generator.py            # SKU tests
-    ├── test_image_validator.py          # Validation tests
-    └── test_review_workflow.py          # E2E tests
+Terminal 2 - Frontend:
+```bash
+cd frontend
+npm run dev
 ```
 
-## Performance Notes
-
-- **SKU generation**: O(1) average, with retry loop on collision
-- **Image validation**: ~500ms per image (Pillow + simple checks), ~2s with ML detector
-- **Human review**: Async queue, no blocking on validation
-- **Database**: Unique index on canonical_sku ensures O(log n) conflict checks
-
-## Future Improvements
-
-1. Active learning: Present borderline-case images to reviewers for max signal
-2. Model retraining: Use accepted/rejected pairs to fine-tune image generator
-3. Multi-vendor SKU consolidation: Detect and merge duplicate SKUs across vendors
-4. ML-based image quality: Train binary classifier (good/bad) on reviewer feedback
-5. A/B testing: Test different canonicalization strategies or validation thresholds
-
-## Support & Troubleshooting
-
-- **SKU collision after deterministic suffix**: Increase hash length or implement incremental counter
-- **Images in review queue not moving**: Check reviewer UI deployment, verify API connectivity
-- **High false positive rate**: Loosen validation thresholds or disable certain checks
-- **Image generation failures**: Implement retry with exponential backoff; escalate if all retries fail
+**5. Access the Application**
+- Frontend: http://localhost:5173
+- API Docs: http://localhost:8000/docs
+- API Health: http://localhost:8000/health
 
 ---
 
-**Created:** November 14, 2025
-**Version:** 1.0
+## API Endpoints
+
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/auth/register` | Register new user |
+| POST | `/api/v1/auth/login` | Login user |
+| GET | `/api/v1/auth/me` | Get current user |
+| POST | `/api/v1/auth/logout` | Logout |
+
+### Images (Vendor)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/images/upload` | Upload product image |
+| GET | `/api/v1/images/my-submissions` | Get vendor's submissions |
+
+### Review (Official)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/review/pending` | Get pending tasks |
+| GET | `/api/v1/review/stats` | Get queue statistics |
+| POST | `/api/v1/review/submit-decision` | Submit review decision |
+
+---
+
+## Configuration
+
+Copy `.env.example` to `.env` and configure:
+
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/sku_pipeline
+
+# API
+API_HOST=0.0.0.0
+API_PORT=8000
+
+# Image Validation Thresholds
+IMAGE_ACCEPT_THRESHOLD=0.85
+IMAGE_REVIEW_THRESHOLD=0.70
+```
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | React 18, TypeScript, Vite |
+| **Backend** | Python 3.9+, FastAPI, Pydantic |
+| **Image Processing** | Pillow, OpenCV, ImageHash |
+| **Authentication** | JWT (in-memory for demo) |
+| **Styling** | CSS with glassmorphism effects |
+
+---
+
+## Testing
+
+```bash
+# Run all tests
+pytest tests/ -v
+
+# Run with coverage
+pytest tests/ --cov=backend --cov-report=html
+```
+
+---
+
+## License
+
+MIT License - See [LICENSE](LICENSE) for details.
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request

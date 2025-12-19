@@ -1,4 +1,6 @@
+# ================================
 # Python
+# ================================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -24,34 +26,105 @@ wheels/
 venv/
 ENV/
 env/
+.venv/
 
-# IDE
+# ================================
+# IDE & Editor
+# ================================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.project
+.settings/
+*.sublime-workspace
+*.sublime-project
 
+# ================================
 # Testing
+# ================================
 .pytest_cache/
 .coverage
 htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
 
-# Temp files
+# ================================
+# Temp & Log files
+# ================================
 *.tmp
 /tmp/
 *.log
+logs/
 
+# ================================
 # Database
+# ================================
 *.db
 *.sqlite
 *.sqlite3
 
-# Environment
+# ================================
+# Environment Variables
+# ================================
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
 
-# OS
+# ================================
+# OS Files
+# ================================
 .DS_Store
 Thumbs.db
+Desktop.ini
+*.lnk
+
+# ================================
+# Node.js / Frontend
+# ================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# ================================
+# Uploads & User Content
+# ================================
+uploads/
+*.jpg
+*.jpeg
+*.png
+*.gif
+!frontend/public/**/*.png
+!frontend/public/**/*.jpg
+
+# ================================
+# Gemini API & AI Services
+# ================================
+.gemini/
+.google/
+gemini_api_key.txt
+**/gemini*.key
+**/api_keys/
+**/*_api_key*
+**/*_secret*
+
+# ================================
+# Build Artifacts
+# ================================
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
