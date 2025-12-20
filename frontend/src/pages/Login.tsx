@@ -64,12 +64,13 @@ const Login: React.FC = () => {
                         </svg>
                     </div>
                     <h1 style={{
-                        fontSize: '1.5rem',
+                        fontSize: '1.75rem',
                         fontWeight: '700',
                         color: '#065f46',
                         marginBottom: '8px',
+                        letterSpacing: '-0.02em',
                     }}>
-                        Welcome back
+                        Catalyze
                     </h1>
                     <p style={{ color: '#78716c', fontSize: '14px' }}>
                         Sign in to your account

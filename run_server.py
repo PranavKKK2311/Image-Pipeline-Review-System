@@ -28,9 +28,9 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 # Create app
 app = FastAPI(
-    title="SKU & Image Validation Pipeline",
+    title="Catalyze - Image Review Platform",
     version="2.0.0",
-    description="Image validation with user authentication"
+    description="Product image review and approval platform with vendor workflow"
 )
 
 # CORS
@@ -479,8 +479,8 @@ async def startup():
     global sku_generator, image_validator, review_queue
     
     print("\n" + "=" * 60)
-    print("  SKU & Image Validation Pipeline v2.0")
-    print("  With User Authentication")
+    print("  Catalyze - Image Review Platform v2.0")
+    print("  Product image review and approval workflow")
     print("=" * 60)
     
     sku_generator = SKUGenerator(db_connection=None)
@@ -499,7 +499,7 @@ async def startup():
     review_queue = ReviewQueue(db_connection=None)
     print("✓ Review queue initialized")
     
-    print(f"\n🚀 Server ready at http://localhost:{config.API_PORT}")
+    print(f"\n🚀 Catalyze ready at http://localhost:{config.API_PORT}")
     print(f"📡 API docs: http://localhost:{config.API_PORT}/docs")
     print("=" * 60 + "\n")
 

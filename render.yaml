@@ -3,7 +3,7 @@
 
 services:
   - type: web
-    name: image-pipeline-api
+    name: catalyze-api
     runtime: python
     region: oregon
     plan: free

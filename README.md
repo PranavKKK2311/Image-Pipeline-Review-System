@@ -1,6 +1,6 @@
-# SKU Image Pipeline
+# Catalyze
 
-A full-stack application for **SKU (Stock Keeping Unit) generation** and **product image validation** with a human-in-the-loop review workflow. Built with **FastAPI** (Python) backend and **React + TypeScript** frontend.
+**Product Image Review & Approval Platform** — A full-stack application for product image validation with a human-in-the-loop review workflow.
 
 ![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
@@ -12,23 +12,17 @@ A full-stack application for **SKU (Stock Keeping Unit) generation** and **produ
 
 ## Features
 
-### Core Services
-- **SKU Generator** - Creates unique, deterministic product codes with collision resolution
-- **Image Validator** - Automated quality checks (background, blur, coverage, similarity)
-- **Review Queue** - Human-in-the-loop workflow for borderline cases
+### Core Capabilities
+- **Image Review Workflow** — Vendors upload product images, reviewers approve or reject
+- **Automated Quality Checks** — Background whiteness, blur detection, object coverage analysis
+- **Real-time Queue Statistics** — Track pending reviews, completion rates, and SLA metrics
+- **Role-based Access** — Separate dashboards for vendors and reviewers
 
 ### User Roles
 | Role | Capabilities |
 |------|-------------|
 | **Vendor** | Upload product images, track submission status, receive feedback |
-| **Official** | Review pending submissions, approve/reject with feedback |
-
-### Tech Highlights
-- JWT-based authentication
-- Real-time queue statistics
-- Glassmorphism UI with dark matcha theme
-- File upload with preview
-- Role-based access control
+| **Reviewer** | Review pending submissions, approve/reject with feedback |
 
 ---
 
@@ -80,49 +74,15 @@ flowchart TB
     style Services fill:#dbeafe,stroke:#3b82f6
 ```
 
-### Request Flow
-
-```mermaid
-sequenceDiagram
-    participant V as Vendor
-    participant FE as Frontend
-    participant API as Backend API
-    participant IV as Image Validator
-    participant RQ as Review Queue
-    participant O as Official
-
-    V->>FE: Upload Image
-    FE->>API: POST /images/upload
-    API->>IV: Validate Image
-    IV-->>API: Score & Metrics
-    
-    alt Score >= 85%
-        API-->>FE: Auto-Accepted
-    else Score 70-85%
-        API->>RQ: Create Review Task
-        RQ-->>API: Task Created
-        API-->>FE: Pending Review
-        O->>FE: View Pending Tasks
-        FE->>API: GET /review/pending
-        O->>FE: Submit Decision
-        FE->>API: POST /review/submit-decision
-        API-->>FE: Feedback to Vendor
-    else Score < 70%
-        API-->>FE: Auto-Rejected
-    end
-```
-
 ---
 
 ## Project Structure
 
 ```
-sku-image-pipeline/
+catalyze/
 ├── backend/
-│   ├── __init__.py
 │   ├── config.py              # Configuration settings
 │   ├── main.py                # Original FastAPI app
-│   ├── migrations/            # Database migrations
 │   └── services/
 │       ├── sku_generator.py   # SKU generation logic
 │       ├── image_validator.py # Image quality validation
@@ -131,31 +91,21 @@ sku-image-pipeline/
 ├── frontend/
 │   ├── src/
 │   │   ├── App.tsx            # Root component with routing
-│   │   ├── main.tsx           # React entry point
 │   │   ├── index.css          # Global styles (matcha theme)
 │   │   ├── context/
-│   │   │   └── AuthContext.tsx    # Authentication state
+│   │   │   └── AuthContext.tsx
 │   │   └── pages/
-│   │       ├── Login.tsx          # Login page
-│   │       ├── Register.tsx       # Registration with role select
-│   │       └── VendorDashboard.tsx # Vendor upload & history
+│   │       ├── Login.tsx
+│   │       ├── Register.tsx
+│   │       └── VendorDashboard.tsx
 │   ├── pages/
-│   │   └── ReviewQueue.tsx    # Official review interface
-│   ├── index.html             # HTML entry
-│   ├── vite.config.ts         # Vite configuration
-│   ├── package.json           # NPM dependencies
-│   └── tsconfig.json          # TypeScript config
+│   │   └── ReviewQueue.tsx
+│   ├── vercel.json            # Vercel deployment config
+│   └── package.json
 │
-├── tests/
-│   ├── test_sku_generator.py  # SKU generator tests
-│   ├── test_image_validator.py
-│   └── test_review_queue.py
-│
-├── uploads/                   # Uploaded images (gitignored)
 ├── run_server.py              # Main server entry point
+├── render.yaml                # Render deployment config
 ├── requirements.txt           # Python dependencies
-├── .env.example               # Environment template
-├── .gitignore
 └── README.md
 ```
 
@@ -166,52 +116,47 @@ sku-image-pipeline/
 ### Prerequisites
 - Python 3.9+
 - Node.js 18+
-- npm or yarn
 
 ### Installation
 
-**1. Clone the repository**
 ```bash
-git clone <repository-url>
-cd sku-image-pipeline
-```
+# Clone repository
+git clone https://github.com/PranavKKK2311/Image-Pipeline-Review-System.git
+cd Image-Pipeline-Review-System
 
-**2. Backend Setup**
-```bash
-# Create virtual environment
+# Backend setup
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install dependencies
 pip install -r requirements.txt
 
-# Run tests
-pytest tests/ -v
-```
-
-**3. Frontend Setup**
-```bash
+# Frontend setup
 cd frontend
 npm install
 ```
 
-**4. Start the Application**
+### Run Locally
 
-Terminal 1 - Backend:
 ```bash
+# Terminal 1 - Backend
 python run_server.py
-```
 
-Terminal 2 - Frontend:
-```bash
+# Terminal 2 - Frontend
 cd frontend
 npm run dev
 ```
 
-**5. Access the Application**
+**Access:**
 - Frontend: http://localhost:5173
 - API Docs: http://localhost:8000/docs
-- API Health: http://localhost:8000/health
+
+---
+
+## Deployment
+
+| Service | Platform | URL |
+|---------|----------|-----|
+| Frontend | Vercel | [image-pipeline-review-system-dotl.vercel.app](https://image-pipeline-review-system-dotl.vercel.app) |
+| Backend | Render | [image-pipeline-review-system.onrender.com](https://image-pipeline-review-system.onrender.com) |
 
 ---
 
@@ -223,7 +168,6 @@ npm run dev
 | POST | `/api/v1/auth/register` | Register new user |
 | POST | `/api/v1/auth/login` | Login user |
 | GET | `/api/v1/auth/me` | Get current user |
-| POST | `/api/v1/auth/logout` | Logout |
 
 ### Images (Vendor)
 | Method | Endpoint | Description |
@@ -231,31 +175,12 @@ npm run dev
 | POST | `/api/v1/images/upload` | Upload product image |
 | GET | `/api/v1/images/my-submissions` | Get vendor's submissions |
 
-### Review (Official)
+### Review (Reviewer)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/v1/review/pending` | Get pending tasks |
 | GET | `/api/v1/review/stats` | Get queue statistics |
 | POST | `/api/v1/review/submit-decision` | Submit review decision |
-
----
-
-## Configuration
-
-Copy `.env.example` to `.env` and configure:
-
-```env
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/sku_pipeline
-
-# API
-API_HOST=0.0.0.0
-API_PORT=8000
-
-# Image Validation Thresholds
-IMAGE_ACCEPT_THRESHOLD=0.85
-IMAGE_REVIEW_THRESHOLD=0.70
-```
 
 ---
 
@@ -265,34 +190,11 @@ IMAGE_REVIEW_THRESHOLD=0.70
 |-------|------------|
 | **Frontend** | React 18, TypeScript, Vite |
 | **Backend** | Python 3.9+, FastAPI, Pydantic |
-| **Image Processing** | Pillow, OpenCV, ImageHash |
-| **Authentication** | JWT (in-memory for demo) |
 | **Styling** | CSS with glassmorphism effects |
-
----
-
-## Testing
-
-```bash
-# Run all tests
-pytest tests/ -v
-
-# Run with coverage
-pytest tests/ --cov=backend --cov-report=html
-```
+| **Auth** | JWT (in-memory for demo) |
 
 ---
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) for details.
-
----
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+MIT License

@@ -123,7 +123,7 @@ const VendorDashboard: React.FC = () => {
             }}>
                 <div>
                     <h1 style={{ fontSize: '18px', fontWeight: '700', color: '#065f46' }}>
-                        Vendor Dashboard
+                        Catalyze <span style={{ fontWeight: '400', color: '#78716c' }}>| Vendor</span>
                     </h1>
                     <p style={{ fontSize: '13px', color: '#78716c' }}>Upload and manage product images</p>
                 </div>

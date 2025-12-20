@@ -67,15 +67,16 @@ const Register: React.FC = () => {
                         </svg>
                     </div>
                     <h1 style={{
-                        fontSize: '1.5rem',
+                        fontSize: '1.75rem',
                         fontWeight: '700',
                         color: '#065f46',
                         marginBottom: '8px',
+                        letterSpacing: '-0.02em',
                     }}>
-                        Create account
+                        Join Catalyze
                     </h1>
                     <p style={{ color: '#78716c', fontSize: '14px' }}>
-                        Join the SKU Image Pipeline
+                        Create your account
                     </p>
                 </div>
 
@@ -157,7 +158,7 @@ const Register: React.FC = () => {
                                     marginBottom: '4px',
                                     fontSize: '15px',
                                 }}>
-                                    Official
+                                    Reviewer
                                 </div>
                                 <div style={{ fontSize: '12px', color: '#78716c' }}>
                                     Review & approve images
