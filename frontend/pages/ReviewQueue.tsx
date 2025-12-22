@@ -341,12 +341,12 @@ const ReviewQueue: React.FC = () => {
                       src={getImageUrl(selectedTask.image_url)}
                       alt={selectedTask.product_name}
                       onError={() => setImageError(true)}
-                      style={{ width: '100%', height: '260px', objectFit: 'cover', borderRadius: '11px' }}
+                      style={{ width: '100%', height: '400px', objectFit: 'contain', borderRadius: '8px', background: '#f8fafc' }}
                     />
                   ) : (
                     <div style={{
                       width: '100%',
-                      height: '260px',
+                      height: '400px',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
