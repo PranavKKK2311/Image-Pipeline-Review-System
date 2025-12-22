@@ -389,7 +389,7 @@ class ImageValidator:
             Score 0-1
         """
         logger.debug(f"Object detection (placeholder): returning neutral score")
-        return 0.7
+        return 0.5
 
     def _check_perceptual_similarity(
         self, image_path: str, reference_image_path: str

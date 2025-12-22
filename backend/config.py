@@ -22,10 +22,10 @@ IMAGE_ACCEPT_ON_MANUAL_RETRY = 0.65       # Lower threshold after human override
 
 # Image validation check weights (must sum to 1.0)
 VALIDATION_WEIGHTS = {
-    "background_white": 0.25,
-    "blur": 0.15,
-    "object_coverage": 0.25,
-    "object_detection": 0.20,
+    "background_white": 0.20,
+    "blur": 0.30,             # Increased importance
+    "object_coverage": 0.20,
+    "object_detection": 0.15,
     "perceptual_similarity": 0.15,
 }
 
@@ -35,7 +35,7 @@ BACKGROUND_WHITE_BORDER_PX = 10           # Pixels to sample from border
 BACKGROUND_WHITE_THRESHOLD = 0.95         # % of border pixels that must be white
 
 # Blur detection
-BLUR_THRESHOLD = 500.0                    # Laplacian variance threshold (higher = less blurry)
+BLUR_THRESHOLD = 1000.0                   # Laplacian variance threshold (much higher = stricter)
 
 # Object coverage
 OBJECT_COVERAGE_MIN = 0.30                # Minimum 30% of image
