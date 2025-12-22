@@ -12,15 +12,11 @@
 
 ## Demo
 
-<!-- 
-To add a video: 
-1. Edit this file on GitHub.com
-2. Drag and drop your .mp4 file into the editor
-3. GitHub will generate a link like https://github.com/user/repo/assets/...
--->
 
-[![Watch the demo](https://img.youtube.com/vi/PLACEHOLDER_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=PLACEHOLDER_VIDEO_ID)
-> *Click above to watch the walkthrough video*
+
+
+https://github.com/user-attachments/assets/5493ccbf-13a6-4fc3-aeab-a6bed48a7c46
+
 
 ---
 
